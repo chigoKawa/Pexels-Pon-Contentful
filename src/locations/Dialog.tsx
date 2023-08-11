@@ -32,7 +32,9 @@ export interface IPhotoData {
 
 const Dialog = () => {
   const sdk = useSDK<DialogAppSDK>();
+
   useAutoResizer();
+
 
   const bodyRef = useRef<HTMLDivElement>(null);
 
@@ -104,6 +106,7 @@ const Dialog = () => {
   if (errorMsg) {
     return (
       <Flex flexDirection="column" justifyContent="center" alignItems="center">
+   
         <Flex
           flexDirection="column"
           justifyContent="center"
@@ -151,6 +154,7 @@ const Dialog = () => {
       fullWidth
       fullHeight
     >
+      
       {pexelsData?.photos && (
         <Grid
           style={{

@@ -1,17 +1,50 @@
-import React, { useState, useEffect } from "react";
-import { Paragraph } from "@contentful/f36-components";
 import { SidebarAppSDK } from "@contentful/app-sdk";
-import { /* useCMA, */ useSDK } from "@contentful/react-apps-toolkit";
+import { AssetCard, Flex, Paragraph } from "@contentful/f36-components";
+import { useSDK } from "@contentful/react-apps-toolkit";
+import { css } from "emotion";
+import { createClient } from "pexels";
+import { useEffect, useState } from "react";
 import eventDispatcher from "../eventDispatcher";
+import { IPexelPhotoData } from "../types/pexels";
 
 const Sidebar = () => {
   // const [message, setMessage] = useState("");
   const sdk = useSDK<SidebarAppSDK>();
+  const { apiKey } = sdk.parameters.installation;
+
+  const [pexelsData, setPexelsData] = useState<any | undefined>(undefined);
+
+  useEffect(() => {
+    if (apiKey) {
+      const pexelsClient = createClient(apiKey);
+
+      const fetchCuratedPhoto = async () => {
+        try {
+          const response: any = await pexelsClient.photos.curated({
+            per_page: 1,
+          });
+
+          setPexelsData(response?.photos as IPexelPhotoData["photos"]);
+    
+        } catch (error) {
+          console.error("Error fetching curated photo:", error);
+        }
+      };
+
+      // Load a new curated image every 15 minutes
+      const interval = 15 * 60 * 1000;
+      const intervalId = setInterval(fetchCuratedPhoto, interval);
+      fetchCuratedPhoto();
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
+  }, [apiKey]);
 
   const [message, setMessage] = useState("");
   useEffect(() => {
     const messageChangeHandler = (event: CustomEvent) => {
-      console.log("pexelin 34", message);
       setMessage(event.detail);
     };
 
@@ -22,16 +55,20 @@ const Sidebar = () => {
     };
   }, []);
 
-  /*
-     To use the cma, inject it as follows.
-     If it is not needed, you can remove the next line.
-  */
-  // const cma = useCMA();
-
   return (
-    <Paragraph>
-      Hello Sidebar Component (AppId: {sdk.ids.app}){JSON.stringify(message)}
-    </Paragraph>
+    <Flex
+      flexDirection="column"
+      alignItems="center"
+      className={css({ margin: "10px", maxWidth: "800px" })}
+    >
+      <Paragraph>Curated from Pexels</Paragraph>
+      <AssetCard
+        size="small"
+        type="image"
+        title={pexelsData?.[0]?.alt}
+        src={pexelsData?.[0]?.src?.medium}
+      />
+    </Flex>
   );
 };
 

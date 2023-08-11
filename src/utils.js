@@ -59,13 +59,6 @@ export function createFetchWrapper(apiKey, type) {
       // for (const [header, value] of response.headers.entries()) {
       //   console.log(`pexelin2 ${header}: ${value}`);
       // }
-      console.log(
-        "pexelin after",
-        expires,
-        rateLimit,
-        rateLimitRemaining,
-        rateLimitReset
-      );
 
       return response.json();
     });
@@ -98,8 +91,6 @@ export function generatePhotoEndpoints(apiKey) {
       const randomPage = Math.floor(1000 * Math.random());
       const response = await this.curated({ page: randomPage, per_page: 1 });
       return response.photos[0];
-
-      return response;
     },
   };
 }

@@ -21,6 +21,7 @@ const Field = () => {
   const sdk = useSDK<FieldAppSDK>();
   useAutoResizer();
 
+
   const apiKey = sdk.parameters.installation.apiKey;
 
 
@@ -31,13 +32,15 @@ const Field = () => {
 
   const [orientationFilter, setOrientationFilter] = useState<
     "landscape" | "square" | "portrait" | undefined
-  >("landscape");
+  >(undefined);
   const val = sdk.field.getValue();
 
   const openDialog = async () => {
     sdk.parameters.instance.pexels = { opens: 1 };
     const data: IPhotoData = await sdk.dialogs.openCurrentApp({
-      width: 900,
+      width: 800,
+      position: "center",
+      minHeight: "800px",
       parameters: {
         q: {
           query: photoSearch,
@@ -56,7 +59,7 @@ const Field = () => {
       try {
         const potentialTitleField = sdk.entry.fields.title;
         const potentialInternalTitle = sdk.entry.fields.internalTitle;
-        console.log("pexela", data, potentialInternalTitle?.getValue());
+    
 
         const title = `Pexels / ${data?.alt} | ${data?.photographer_attribution}`;
 
@@ -105,7 +108,7 @@ const Field = () => {
       <Collapse isExpanded={showForm}>
         <Form onSubmit={() => openDialog()}>
           <FormControl>
-            <FormControl.Label>Search Images Pexels!</FormControl.Label>
+            <FormControl.Label>Search Images Pexels</FormControl.Label>
 
             <TextInput
               type="text"

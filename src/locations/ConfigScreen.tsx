@@ -8,6 +8,7 @@ import {
   FormControl,
   TextInput,
   TextLink,
+  Text,
 } from "@contentful/f36-components";
 import { css } from "emotion";
 import { useSDK } from "@contentful/react-apps-toolkit";
@@ -20,13 +21,10 @@ const ConfigScreen = () => {
   const [parameters, setParameters] = useState<AppInstallationParameters>({
     apiKey: "",
   });
+  const [errorMsg, setErrorMsg] = useState<string>("");
   const sdk = useSDK<ConfigAppSDK>();
-  /*
-     To use the cma, inject it as follows.
-     If it is not needed, you can remove the next line.
-  */
 
-  const onConfigure = useCallback(async () => {
+  const onConfigure2 = useCallback(async () => {
     // This method will be called when a user clicks on "Install"
     // or "Save" in the configuration screen.
     // for more details see https://www.contentful.com/developers/docs/extensibility/ui-extensions/sdk-reference/#register-an-app-configuration-hook
@@ -44,27 +42,48 @@ const ConfigScreen = () => {
     };
   }, [parameters, sdk]);
 
+  // Configure the app when the user installs or updates settings
+  const onConfigure = async () => {
+
+
+    // Save parameters and current state for app configuration
+    const currentState = await sdk.app.getCurrentState();
+    const appConfig = {
+      parameters,
+      targetState: currentState,
+    };
+
+    // Complete the configuration process
+    return appConfig;
+  };
+
   useEffect(() => {
-    // `onConfigure` allows to configure a callback to be
-    // invoked when a user attempts to install the app or update
-    // its configuration.
-    sdk.app.onConfigure(() => onConfigure());
+    // Register the onConfigure callback when apiKey is set
+
+    setErrorMsg("");
+    if (parameters.apiKey) {
+      sdk.app.onConfigure(() => onConfigure());
+    } else {
+      setErrorMsg("Please set an API Key");
+    }
   }, [sdk, onConfigure]);
 
   useEffect(() => {
     (async () => {
-      // Get current parameters of the app.
-      // If the app is not installed yet, `parameters` will be `null`.
-      const currentParameters: AppInstallationParameters | null =
-        await sdk.app.getParameters();
+      // Retrieve and set current parameters, then signal readiness
+      const prepareApp = async () => {
+        const currentParameters: AppInstallationParameters | null =
+          await sdk.app.getParameters();
 
-      if (currentParameters) {
-        setParameters(currentParameters);
-      }
+        if (currentParameters) {
+          setParameters(currentParameters);
+        }
 
-      // Once preparation has finished, call `setReady` to hide
-      // the loading screen and present the app to a user.
-      sdk.app.setReady();
+        // Signal app readiness after setup
+        sdk.app.setReady();
+      };
+
+      prepareApp();
     })();
   }, [sdk]);
 
@@ -74,7 +93,7 @@ const ConfigScreen = () => {
       className={css({ margin: "80px", maxWidth: "800px" })}
     >
       <Form>
-        <Heading>App Config</Heading>
+        <Heading>App Config </Heading>
         <Paragraph>
           Connect with your{" "}
           <TextLink
@@ -94,10 +113,15 @@ const ConfigScreen = () => {
           </TextLink>
           .
         </Paragraph>
+
+        <Text fontColor="red500" marginBottom="spacingM">
+          {errorMsg && errorMsg}
+        </Text>
         <FormControl>
           <TextInput
             type="text"
             value={parameters?.apiKey}
+            isInvalid={!!errorMsg}
             onChange={(e) =>
               setParameters((params) => ({ ...params, apiKey: e.target.value }))
             }
