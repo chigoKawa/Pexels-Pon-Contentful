@@ -16,6 +16,12 @@ To unlock the potential of this app, all that's required is your Pexels API key.
 # Install
 [![Install to Contentful](https://www.ctfstatic.com/button/install-small.svg)](https://app.contentful.com/deeplink?link=apps&id=3ES1ceGZlYqle9OVgllxoP)
 
-# How To Use
+# # Configuration
+I'll write this before the end of time...
+
+# # Field Configuration
+I'll write this before the end of time...
+
+# # Output
 I'll write this before the end of time...
 
